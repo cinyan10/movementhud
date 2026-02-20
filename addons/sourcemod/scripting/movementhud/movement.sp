@@ -6,6 +6,7 @@ bool gB_DidJump[MAXPLAYERS + 1];
 bool gB_DidPerf[MAXPLAYERS + 1];
 bool gB_DidJumpBug[MAXPLAYERS + 1];
 bool gB_DidCrouchJump[MAXPLAYERS + 1];
+bool gB_DidEdgeBug[MAXPLAYERS + 1];
 
 bool gB_DidTakeoff[MAXPLAYERS + 1];
 float gF_TakeoffSpeed[MAXPLAYERS + 1];
@@ -13,6 +14,7 @@ float gF_TakeoffSpeed[MAXPLAYERS + 1];
 float gF_OldSpeed[MAXPLAYERS + 1];
 float gF_CurrentSpeed[MAXPLAYERS + 1];
 float gF_LastJumpInput[MAXPLAYERS + 1];
+float gF_OldVerticalVelocity[MAXPLAYERS + 1];
 
 static bool OldOnGround[MAXPLAYERS + 1];
 static MoveType OldMoveType[MAXPLAYERS + 1];
@@ -42,11 +44,13 @@ void OnClientPutInServer_Movement(int client)
 
     gF_CurrentSpeed[client] = 0.0;
     gF_LastJumpInput[client] = 0.0;
+    gF_OldVerticalVelocity[client] = 0.0;
 
     OldOnGround[client] = false;
     OldMoveType[client] = MOVETYPE_NONE;
 
     gB_GotBotInfo[client] = false;
+    gB_DidEdgeBug[client] = false;
 }
 
 void OnPlayerRunCmdPost_Movement(int client, int buttons, const int mouse[2], int tickcount)
@@ -140,6 +144,22 @@ static void TrackMovement(int client, int tickcount)
 
     gF_SpeedChange[client][tickcount % MAX_TRACKED_TICKS] = gF_CurrentSpeed[client] - gF_OldSpeed[client];
 
+    // Edge bug detection
+    float velocity[3];
+    Movement_GetVelocity(client, velocity);
+    float currentVerticalVel = velocity[2];
+    
+    // Detect edge bug: was falling (< -50), velocity became ~0, not on ground, and not on ladder
+    if (gF_OldVerticalVelocity[client] < -100.0 && 
+        FloatAbs(currentVerticalVel) < 10.0 && 
+        !onGround &&
+        moveType != MOVETYPE_LADDER)
+    {
+        gB_DidEdgeBug[client] = true;
+    }
+    
+    gF_OldVerticalVelocity[client] = currentVerticalVel;
+
     OldOnGround[client] = onGround;
     OldMoveType[client] = moveType;
 }
@@ -173,6 +193,7 @@ static void ResetTakeoff(int client)
     gB_DidPerf[client] = false;
     gB_DidJumpBug[client] = false;
     gB_DidCrouchJump[client] = false;
+    gB_DidEdgeBug[client] = false;
     gB_FirstTickGain[client] = false;
 }
 

@@ -7,10 +7,12 @@ MHudXYPreference IndicatorsPosition;
 MHudBoolPreference IndicatorsJBEnabled;
 MHudBoolPreference IndicatorsCJEnabled;
 MHudBoolPreference IndicatorsPBEnabled;
+MHudBoolPreference IndicatorsEBEnabled;
 
 MHudBoolPreference IndicatorsAbbreviations;
 
 MHudBoolPreference IndicatorsFTGEnabled;
+MHudBoolPreference IndicatorsCrouchEnabled;
 
 void OnPluginStart_Elements_Mode_Indicators()
 {
@@ -26,7 +28,9 @@ void OnPluginStart_Elements_Other_Indicators()
     IndicatorsJBEnabled = new MHudBoolPreference("indicators_jb_enabled", "Indicators - Jump Bug", false);
     IndicatorsCJEnabled = new MHudBoolPreference("indicators_cj_enabled", "Indicators - Crouch Jump", false);
     IndicatorsPBEnabled = new MHudBoolPreference("indicators_pb_enabled", "Indicators - Perfect Bhop", false);
+    IndicatorsEBEnabled = new MHudBoolPreference("indicators_eb_enabled", "Indicators - Edge Bug", false);
     IndicatorsFTGEnabled = new MHudBoolPreference("indicators_ftg", "Indicators - First Tick Gain", false);
+    IndicatorsCrouchEnabled = new MHudBoolPreference("indicators_crouch", "Indicators - Crouch Status", false);
     IndicatorsAbbreviations = new MHudBoolPreference("indicators_abbrs", "Indicators - Abbreviations", true);
 }
 
@@ -36,10 +40,15 @@ void OnGameFrame_Element_Indicators(int client, int target)
     bool drawJB = IndicatorsJBEnabled.GetBool(client) && gB_DidJumpBug[target];
     bool drawCJ = IndicatorsCJEnabled.GetBool(client) && gB_DidCrouchJump[target];
     bool drawPB = IndicatorsPBEnabled.GetBool(client) && gB_DidPerf[target];
+    bool drawEB = IndicatorsEBEnabled.GetBool(client) && gB_DidEdgeBug[target];
     bool drawFTG = IndicatorsFTGEnabled.GetBool(client) && gB_FirstTickGain[target];
+    bool isCrouched = (GetEntityFlags(target) & FL_DUCKING == FL_DUCKING);
+    bool isInAir = !(GetEntityFlags(target) & FL_ONGROUND == FL_ONGROUND);
+    bool notHoldingCrouch = !(gI_Buttons[target] & IN_DUCK == IN_DUCK);
+    bool drawCrouch = IndicatorsCrouchEnabled.GetBool(client) && isCrouched && isInAir && notHoldingCrouch;
 
     // Nothing enabled
-    if (!draw || (!drawJB && !drawCJ && !drawPB && !drawFTG))
+    if (!draw || (!drawJB && !drawCJ && !drawPB && !drawEB && !drawFTG && !drawCrouch))
     {
         return;
     }
@@ -80,11 +89,27 @@ void OnGameFrame_Element_Indicators(int client, int target)
         );
     }
 
+    if (drawEB)
+    {
+        Format(buffer, sizeof(buffer), "%s%s\n",
+            buffer,
+            useAbbr ? "EB" : "EDGE BUG"
+        );
+    }
+
     if (drawFTG)
     {
         Format(buffer, sizeof(buffer), "%s%s\n",
             buffer,
             useAbbr ? "G" : "FIRST TICK GAIN"
+        );
+    }
+
+    if (drawCrouch)
+    {
+        Format(buffer, sizeof(buffer), "%s%s\n",
+            buffer,
+            useAbbr ? "C" : "CROUCHED"
         );
     }
     ShowSyncHudText(client, HudSync, "%s", buffer);
