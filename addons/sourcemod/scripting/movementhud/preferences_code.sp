@@ -41,6 +41,7 @@ void OnPluginStart_PreferencesCode()
     PreferencesInCode.Push(KeysLossColor);
 
     PreferencesInCode.Push(IndicatorsMode);
+    PreferencesInCode.Push(DisableInFreeCamera);
 }
 
 void GeneratePreferencesCode(int client, char[] buffer, int maxlength)
