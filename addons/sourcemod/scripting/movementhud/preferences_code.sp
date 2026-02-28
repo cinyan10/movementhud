@@ -25,6 +25,7 @@ void OnPluginStart_PreferencesCode()
     PreferencesInCode.Push(SpeedColorBySpeed);
     PreferencesInCode.Push(KeysColorBySpeed);
     PreferencesInCode.Push(IndicatorsColor);
+    PreferencesInCode.Push(IndicatorsJBColor);
     PreferencesInCode.Push(IndicatorsPosition);
     PreferencesInCode.Push(IndicatorsJBEnabled);
     PreferencesInCode.Push(IndicatorsCJEnabled);
@@ -42,6 +43,7 @@ void OnPluginStart_PreferencesCode()
 
     PreferencesInCode.Push(IndicatorsMode);
     PreferencesInCode.Push(DisableInFreeCamera);
+    PreferencesInCode.Push(SpeedUseJBColor);
 }
 
 void GeneratePreferencesCode(int client, char[] buffer, int maxlength)

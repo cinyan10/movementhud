@@ -9,6 +9,9 @@ MHudEnumPreference SpeedColorBySpeed;
 MHudEnumPreference SpeedRounding;
 MHudRGBPreference SpeedGainColor;
 MHudRGBPreference SpeedLossColor;
+MHudBoolPreference SpeedUseJBColor;
+static MHudRGBPreference JBColorPreference;
+static bool TriedFindJBColorPreference;
 
 static const char Modes[SpeedMode_COUNT][] =
 {
@@ -56,6 +59,7 @@ void OnPluginStart_Elements_Other_Speed()
     SpeedColorBySpeed = new MHudEnumPreference("speed_color_by_speed", "Speed - Color by Speed", SpeedColors, sizeof(SpeedColors) - 1, SpeedKeyColor_None);
     SpeedGainColor = new MHudRGBPreference("speed_color_gain", "Speed - Gain Color", 0, 255, 0);
     SpeedLossColor = new MHudRGBPreference("speed_color_loss", "Speed - Loss Color", 255, 0, 0);
+    SpeedUseJBColor = new MHudBoolPreference("speed_jb_color_override", "Speed - Use Jump Bug Color", false);
 }
 
 void OnGameFrame_Element_Speed(int client, int target)
@@ -149,6 +153,20 @@ void OnGameFrame_Element_Speed(int client, int target)
                 SpeedLossColor.GetRGB(client, gainRGB);
                 ColorLerp(rgb, gainRGB, -gainTicks/MAX_TRACKED_TICKS, rgb);
             }
+        }
+    }
+
+    if (SpeedUseJBColor.GetBool(client) && gB_DidJumpBug[target])
+    {
+        if (!TriedFindJBColorPreference)
+        {
+            JBColorPreference = MHudRGBPreference.Find("indicators_jb_color");
+            TriedFindJBColorPreference = true;
+        }
+
+        if (JBColorPreference != view_as<MHudRGBPreference>(INVALID_HANDLE))
+        {
+            JBColorPreference.GetRGB(client, rgb);
         }
     }
 
