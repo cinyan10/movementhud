@@ -3,6 +3,7 @@ static Handle HudSync;
 MHudBoolPreference IndicatorsMode;
 MHudRGBPreference IndicatorsColor;
 MHudRGBPreference IndicatorsJBColor;
+MHudRGBPreference IndicatorsPBColor;
 MHudXYPreference IndicatorsPosition;
 
 MHudBoolPreference IndicatorsJBEnabled;
@@ -27,6 +28,7 @@ void OnPluginStart_Elements_Other_Indicators()
 
     IndicatorsColor = new MHudRGBPreference("indicators_color", "Indicators - Color", 0, 255, 0);
     IndicatorsJBColor = new MHudRGBPreference("indicators_jb_color", "Indicators - Jump Bug Color", 0, 255, 0);
+    IndicatorsPBColor = new MHudRGBPreference("indicators_pb_color", "Indicators - Perfect Bhop Color", 0, 255, 0);
     IndicatorsJBEnabled = new MHudBoolPreference("indicators_jb_enabled", "Indicators - Jump Bug", false);
     IndicatorsCJEnabled = new MHudBoolPreference("indicators_cj_enabled", "Indicators - Crouch Jump", false);
     IndicatorsPBEnabled = new MHudBoolPreference("indicators_pb_enabled", "Indicators - Perfect Bhop", false);
@@ -59,6 +61,10 @@ void OnGameFrame_Element_Indicators(int client, int target)
     if (drawJB)
     {
         IndicatorsJBColor.GetRGB(client, rgb);
+    }
+    else if (drawPB)
+    {
+        IndicatorsPBColor.GetRGB(client, rgb);
     }
     else
     {
