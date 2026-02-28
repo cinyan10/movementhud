@@ -43,7 +43,7 @@ void OnPluginStart_PreferencesCode()
 
     PreferencesInCode.Push(IndicatorsMode);
     PreferencesInCode.Push(DisableInFreeCamera);
-    PreferencesInCode.Push(SpeedUseJBColor);
+    PreferencesInCode.Push(SpeedJBColor);
 }
 
 void GeneratePreferencesCode(int client, char[] buffer, int maxlength)
